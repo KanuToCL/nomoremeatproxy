@@ -1,0 +1,7 @@
+node_modules/
+.env*
+*.log
+# Local bridge state (ledger, routing) never belongs in the repo.
+.bridge-state/
+# Generate machine-specific prerequisite reports locally; do not publish them.
+/docs/environment.md

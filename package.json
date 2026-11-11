@@ -1,0 +1,59 @@
+{
+  "name": "nomoremeatproxy",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Lets Codex and Claude sessions find each other's history and exchange work without a human carrying messages.",
+  "type": "module",
+  "bin": {
+    "nomeat": "bin/nomeat.mjs"
+  },
+  "engines": {
+    "node": ">=22.15"
+  },
+  "files": [
+    "bin/nomeat.mjs",
+    "src/adapters/claude-attended.mjs",
+    "src/adapters/claude.mjs",
+    "src/adapters/codex-app.mjs",
+    "src/adapters/codex-cli.mjs",
+    "src/adapters/codex-daemon.mjs",
+    "src/adapters/codex-transport.mjs",
+    "src/adapters/codex.mjs",
+    "src/adapters/opener.mjs",
+    "src/call.mjs",
+    "src/check.mjs",
+    "src/doctor-live.mjs",
+    "src/doctor.mjs",
+    "src/history/claude.mjs",
+    "src/history/codex.mjs",
+    "src/history/compact.mjs",
+    "src/history/folder.mjs",
+    "src/history/index.mjs",
+    "src/history/match.mjs",
+    "src/history/render.mjs",
+    "src/ledger.mjs",
+    "src/listen.mjs",
+    "src/listener-lease.mjs",
+    "src/mailbox.mjs",
+    "src/orient.mjs",
+    "src/peers.mjs",
+    "src/remote-control-store.mjs",
+    "src/remote-control.mjs",
+    "src/standing.mjs",
+    "src/stats.mjs",
+    "src/usage.mjs",
+    "src/writable.mjs",
+    "tools/doctor.mjs",
+    "docs/usage.md",
+    "docs/assets/not-a-meat-proxy.png",
+    "templates/peer-calls.md"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "scripts": {
+    "test": "node --test",
+    "doctor": "node tools/doctor.mjs",
+    "doctor:write": "node tools/doctor.mjs --write docs/environment.md"
+  }
+}
