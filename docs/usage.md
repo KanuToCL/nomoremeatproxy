@@ -183,7 +183,7 @@ the command line would fall back to.
   open, first in Recents. Not tested: the link while the app is minimized, or closed on macOS
   and Linux; for a chat whose turn is still running; from a shell without a desktop session,
   or from inside Codex's sandbox. Where it does not work, the app shows the chat later: see
-  the known limits in the [README](../README.md#known-limits).
+  the [detailed platform observations](#detailed-platform-observations).
 
 ### A thread that is open in the Codex app
 
@@ -464,3 +464,52 @@ set `NOMEAT_STATE_DIR` to a folder the sandbox can write, and the same on the ot
   reply and the vendor's token figures, never message text.
 - `inbox/` is the mailbox for listening chats. It holds a message and its answer only until
   the caller has collected the answer; leftovers are removed after a day.
+
+## Detailed platform observations
+
+**New chats can be late in the Codex app's list.** A chat the bridge creates on the Codex side
+works at once: the message is delivered, the answer comes back, and `nomeat find --side codex`
+lists it. The Codex app itself may not show the chat in its list until the app re-reads it.
+
+The bridge now opens each new Codex chat by its link, `codex://threads/<id>`, once the call's
+turn has ended and the bridge's own Codex server has stopped (`--no-open` skips that). Opening
+the link switches the app's main area to that chat, seen on Linux: if you are in another chat
+there, you are moved out of it. Whether the window is raised or takes keyboard focus was not
+checked.
+
+- Windows: the bridge's opener ran twice, before it waited for its own server to stop, and
+  both chats showed in the app on their own, the second during an update of the app; a third run, with the wait for the bridge's own server in place, showed its chat too. Opened by
+  hand, the link made the app show and list a chat twice: once after a delay that was not
+  timed, once within seconds. With the app closed, a link opened by hand started the app, which
+  came up on that new chat; seen once.
+- macOS and Linux: only the same commands run by hand, on older code without the opener, once
+  each. On macOS the chat was listed in under 3 seconds; on Linux it was open one second later,
+  first in Recents. The bridge's opener itself has run only on Windows.
+
+Not tested: the link while the app is minimized, or closed on macOS and Linux; for a chat whose
+turn is still running; from a shell without a desktop session, or from inside Codex's sandbox.
+Where it does not work, the chat appears as before:
+
+- Linux: it appears after you start any new chat in the Codex app.
+- macOS: it appears after you quit and reopen the Codex app.
+- Windows: it appears after you quit and reopen the Codex app. A folder the app does not know
+  is not added to its Projects; the chat shows under Recents.
+
+Messages and answers are not lost while the chat is missing from the list. This is observed
+behaviour: the cause is not proven.
+
+**A question card in such a chat can be lost.** Seen on a Mac, and on Windows in three runs.
+On the Mac, the assistant in a bridge chat the
+Codex app did not list yet asked the owner with its question card. The card tool answered that
+it was accepted, the owner saw nothing, the card was still missing once the chat was listed,
+and the bridge reported the call as answered. Seen twice; in the same chat once listed, a card
+was shown. On Windows, a card raised in a follow-up message, in a chat that was already up in
+the app after its link was opened, was shown; cards raised before the chat was up were lost. On
+macOS and Linux, in the runs where the link was opened by hand, a follow-up sent with
+`--no-wait` that asked for a card showed it, and the owner's yes arrived; a card raised before
+the link was sent was not tested there. The bridge now tells the assistant in a Codex chat it made to
+put a question for the owner in its answer instead.
+
+**On Linux a bridge chat cannot be listed in the Claude app.** The vendor's opener works on
+macOS and Windows only. A bridge conversation shows in the Claude app on Linux when a chat
+there is listening.

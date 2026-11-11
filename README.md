@@ -1,121 +1,119 @@
-<p align="center">
-  <img src="docs/assets/not-a-meat-proxy.png" width="420" alt="Meme: a man points at his own reflection in a mirror. Caption: You're not a meat proxy. You're an AI assisted senior software engineer.">
-</p>
-
 # NOMOREMEATPROXY
 
-Stop being the courier between your OpenAI and Anthropic assistants.
+## Stop being your AI team's clipboard.
 
-The goal: a coordinator session on one side and a reviewer session on the other find each
-other's history, exchange work, spin off their own coding workers, and share one project
-repo, on existing ChatGPT and Claude subscriptions with no paid API access.
+**Let Codex and Claude exchange context, questions and reviews through their own CLIs.**
+Get a second opinion, continue a project conversation, and bring the answer back without
+copy-pasting between assistants.
 
-## Status
+[Quickstart](#quickstart) · [User guide](docs/usage.md) · [Known limits](#known-limits)
 
-Bridge v0 works on the development machine (2026-11-10): `nomeat call` lets one side call the
-other, start or continue an exact thread, pick the model and thinking level, and get the reply
-back. Calls continue one conversation, with desktop listing limits below. `nomeat find` and
-`nomeat read` look up a chat on the other side by title or recent message content; `nomeat
-orient` inspects routes without sending. It uses only the vendors' own command lines. Web
-chats and fully automatic setup are not supported.
+<p align="center">
+  <img src="docs/assets/not-a-meat-proxy.png" width="360" alt="Illustrated meme: a man points at his reflection. You're not a meat proxy. You're an AI assisted senior software engineer.">
+</p>
 
-## Install
+### Two assistants. Less relay work.
 
-Version 0.1.0 is on npm. Install the CLI with:
+- **Get another perspective.** Plan with one assistant; ask the other to challenge the
+  assumptions, review an implementation or look for missing tests.
+- **Keep the conversation going.** Continue a project-scoped thread instead of starting
+  every handoff from scratch.
+- **Find the context, not another tab.** Search titles or recent message content on either
+  side, then read a compact conversation.
+- **Know where the handoff goes.** Inspect routes without sending, follow requests, and
+  see reported call usage instead of guessing.
+
+NOMOREMEATPROXY is a local CLI bridge, not another chat service. Use supported subscription
+sign-ins for the vendor CLIs; your vendors' model access and usage limits still apply.
+
+## Quickstart
+
+**Bring your own prerequisites:** Node.js **22.15+**, Codex CLI and Claude Code CLI,
+installed and signed in with supported subscriptions. Desktop apps are needed to see chats
+there. This package does not install prerequisites, sign you in or configure your assistants.
+
+### 1. Install the bridge
 
 ```bash
 npm install --global nomoremeatproxy@0.1.0
+nomeat --help
+nomeat peers
 ```
 
-Then `nomeat --help`, `nomeat peers` and `nomeat orient --from astra` are read-only starting
-points. For a one-off invocation, use `npx --yes nomoremeatproxy@0.1.0 --help`.
-Published on 2026-11-11. An install and a one-off run from the registry were checked on Windows
-that day.
+Prefer a one-off look? `npx --yes nomoremeatproxy@0.1.0 --help`.
+Version 0.1.0 was published on 2026-11-11; registry installation and a one-off run were
+checked on Windows that day.
 
-This installs only the bridge CLI. **Install Node.js 22.15 or later, Codex CLI and Claude
-Code CLI yourself**, then sign in to both vendor CLIs with your supported subscriptions.
-The bridge does not install prerequisites, sign you in, configure your assistants, or prove
-delivery. Desktop apps are needed to see chats there, with the platform limits below.
-Peer names and default models remain fixed; see the usage guide for per-call overrides.
+### 2. Connect it to your project
 
-With the npm command on your PATH, use `nomeat` in place of `node bin/nomeat.mjs` in the
-source-checkout examples:
+Run this **from the project you want the assistants to work in**:
 
 ```bash
-nomeat call --to astra --from fable --effort ultra --message "Review the project plan"
+nomeat orient --from astra
 ```
 
-## Documents
+`orient` inspects routes and state without creating folders or sending messages. It does
+not prove delivery. Give both assistants the [peer-call instructions](templates/peer-calls.md)
+and follow the [setup guide](docs/usage.md#requirements). For calls into an already-open
+Claude Desktop chat, configure its [listener](docs/usage.md#calls-into-the-claude-chat-you-are-sitting-in).
 
-| File | Contents |
-|---|---|
-| [docs/usage.md](docs/usage.md) | How to call a peer, results, retries, state |
-| [templates/peer-calls.md](templates/peer-calls.md) | Instructions to give both assistants |
+### 3. Ask for a second opinion
 
-Private project records, conversations and development-machine snapshots are not part of
-this repository or the npm package.
-
-## Check your machine
-
-From the installed package directory (or source checkout), run the included prerequisite
-check. A global install adds `nomeat`, not a separate `doctor` command. This check prints
-versions and counts, no paths or content, and sends no messages:
+Once your chosen route is ready:
 
 ```bash
+nomeat call --to fable --from astra --message "Review this project's architecture. What would you challenge?"
+```
+
+This sends a real message and returns the peer's answer. The receiving session's access
+still matters. `astra` and `fable` are built-in peer roles, not proof of which model is
+running. Defaults are fixed; inspect `nomeat peers` and use the documented
+[model and thinking overrides](docs/usage.md#calling-a-peer) where supported by the route.
+
+### Prefer a source checkout?
+
+```bash
+git clone https://github.com/KanuToCL/nomoremeatproxy.git
+cd nomoremeatproxy
 npm run doctor
+node bin/nomeat.mjs --help
 ```
 
-Built and tested on Windows 11. The app and browser probes are Windows-only for now.
+The bridge has no package dependencies or install hooks. `doctor` checks prerequisites
+without sending messages; run it from the checkout or installed package directory, not an
+unrelated project. It is not a separate command added to your PATH. App/browser probes are
+Windows-only. Source examples use `node bin/nomeat.mjs`; an installed CLI uses `nomeat`.
+
+## How it works
+
+1. **Call from your project.** An assistant invokes `nomeat` with a peer and a question.
+2. **Route through the vendor CLI.** The bridge starts or continues a conversation, or
+   hands the request to a listening Claude Desktop chat.
+3. **Bring the answer back.** The caller gets the reply; `find`, `read` and `check` help
+   recover context and follow up on work.
+
+The bridge keeps local routing and delivery state. Both assistants must use the same
+[state folder](docs/usage.md#state). Installation alone is not an end-to-end delivery test.
 
 ## Known limits
 
-**New chats can be late in the Codex app's list.** A chat the bridge creates on the Codex side
-works at once: the message is delivered, the answer comes back, and `nomeat find --side codex`
-lists it. The Codex app itself may not show the chat in its list until the app re-reads it.
+Useful today, with real boundaries:
 
-The bridge now opens each new Codex chat by its link, `codex://threads/<id>`, once the call's
-turn has ended and the bridge's own Codex server has stopped (`--no-open` skips that). Opening
-the link switches the app's main area to that chat, seen on Linux: if you are in another chat
-there, you are moved out of it. Whether the window is raised or takes keyboard focus was not
-checked.
+| Area | What to know |
+|---|---|
+| Setup | CLI-only, with manual prerequisites, sign-ins and assistant instructions. Web chats and automatic setup are not supported. |
+| Models | Four fixed peer defaults may not fit your account. Overrides depend on the route; queued/attended chats keep their existing settings. |
+| Desktop UX | New Codex chats can appear late. Opening a chat can switch you away from your current one. A question card raised before a chat appears can be lost; prefer questions in the returned answer. |
+| Linux | The vendor offers no opener to list a new bridge chat in Claude Desktop. A listening desktop chat is the alternative. Sandboxes can also block network/state access on Linux and macOS. |
+| Validation | Windows is the primary development platform. Platform observations are not a clean-machine or reboot guarantee. |
 
-- Windows: the bridge's opener ran twice, before it waited for its own server to stop, and
-  both chats showed in the app on their own, the second during an update of the app; a third run, with the wait for the bridge's own server in place, showed its chat too. Opened by
-  hand, the link made the app show and list a chat twice: once after a delay that was not
-  timed, once within seconds. With the app closed, a link opened by hand started the app, which
-  came up on that new chat; seen once.
-- macOS and Linux: only the same commands run by hand, on older code without the opener, once
-  each. On macOS the chat was listed in under 3 seconds; on Linux it was open one second later,
-  first in Recents. The bridge's opener itself has run only on Windows.
+Read the [full platform observations and untested cases](docs/usage.md#detailed-platform-observations)
+before relying on desktop listing or owner question cards.
 
-Not tested: the link while the app is minimized, or closed on macOS and Linux; for a chat whose
-turn is still running; from a shell without a desktop session, or from inside Codex's sandbox.
-Where it does not work, the chat appears as before:
+## Go deeper
 
-- Linux: it appears after you start any new chat in the Codex app.
-- macOS: it appears after you quit and reopen the Codex app.
-- Windows: it appears after you quit and reopen the Codex app. A folder the app does not know
-  is not added to its Projects; the chat shows under Recents.
+- [User guide](docs/usage.md): commands, routing, history, retries, state and platform behavior.
+- [Assistant instructions](templates/peer-calls.md): permission-aware calls and replies.
+- [Contributor guide](https://github.com/KanuToCL/nomoremeatproxy/blob/main/AGENTS.md): local tests and safe development.
 
-Messages and answers are not lost while the chat is missing from the list. This is observed
-behaviour: the cause is not proven.
-
-**A question card in such a chat can be lost.** Seen on a Mac, and on Windows in three runs.
-On the Mac, the assistant in a bridge chat the
-Codex app did not list yet asked the owner with its question card. The card tool answered that
-it was accepted, the owner saw nothing, the card was still missing once the chat was listed,
-and the bridge reported the call as answered. Seen twice; in the same chat once listed, a card
-was shown. On Windows, a card raised in a follow-up message, in a chat that was already up in
-the app after its link was opened, was shown; cards raised before the chat was up were lost. On
-macOS and Linux, in the runs where the link was opened by hand, a follow-up sent with
-`--no-wait` that asked for a card showed it, and the owner's yes arrived; a card raised before
-the link was sent was not tested there. The bridge now tells the assistant in a Codex chat it made to
-put a question for the owner in its answer instead.
-
-**On Linux a bridge chat cannot be listed in the Claude app.** The vendor's opener works on
-macOS and Windows only. A bridge conversation shows in the Claude app on Linux when a chat
-there is listening.
-
-## Licence
-
-MIT. See [LICENSE](LICENSE).
+MIT licensed. See [LICENSE](LICENSE).
