@@ -32,7 +32,7 @@ test('the publishable manifest exposes only nomeat and explicit runtime/document
   assert.deepEqual(metadata.bin, { nomeat: 'bin/nomeat.mjs' });
   assert.deepEqual(metadata.publishConfig, { registry: 'https://registry.npmjs.org/' });
   assert.deepEqual([...metadata.files].sort(), EXPECTED.filter(name => !['LICENSE', 'README.md', 'package.json'].includes(name)));
-  assert.match(readFileSync(new URL('../bin/nomeat.mjs', import.meta.url), 'utf8'), /^#!\/usr\/bin\/env node\r?\n/);
+  assert.match(readFileSync(new URL('../bin/nomeat.mjs', import.meta.url), 'utf8'), /^#!\/usr\/bin\/env node\n/);
 });
 
 test('the package has no dependencies, bundled dependencies or install/pack/publish hooks', () => {

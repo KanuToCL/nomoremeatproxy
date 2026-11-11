@@ -1,0 +1,5 @@
+# Keep text LF in both Git and checkouts, even with core.autocrlf=true.
+* text=auto eol=lf
+
+# Image bytes must never be normalized.
+*.png binary
